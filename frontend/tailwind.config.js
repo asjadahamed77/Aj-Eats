@@ -10,14 +10,19 @@ module.exports = {
         'desktop': {'max': '1441px'},
         'laptop': {'max': '1025px'},
         'tab': {'max': '769px'},
-        'phone': {'max': '375px'},
+        'phoneMax': {'max': '432px'},
+        'phone': {'max': '376px'},
       },
       fontFamily: {
         NotoSans: ['Noto Sans', 'sans-serif'],
         eduHand: ['"Edu AU VIC WA NT Hand"', 'cursive'],
       },
+      colors: {
+        main: '#ff580f',
+        secondary: '#ff7e26',
+      },
       backgroundImage: {
-        
+        // Add any custom background images here
       },
       textShadow: {
         'red-glow': '1px 0 10px red',
