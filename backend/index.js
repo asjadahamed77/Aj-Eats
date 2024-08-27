@@ -14,7 +14,7 @@ const app = express();
 
 // CORS setup to allow credentials and specify the frontend origin
 app.use(cors({
-  origin: ['http://localhost:3000'], // Specify the frontend URLs
+  origin: ['http://localhost:3001'], // Specify the frontend URLs
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
 
@@ -30,7 +30,8 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((error) => {
     console.error('Failed to connect to MongoDB', error);
   });
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+  
 // Your routes and other application logic will go here
 
 app.use('/user', userRouter);

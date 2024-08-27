@@ -5,11 +5,14 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import CartPage from "./pages/CartPage";
 import Navbar from "./components/Navbar";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
     <div>
      <BrowserRouter>
+     <ToastContainer />
      <Navbar />
      <Routes>
       <Route path="/" element={<Homepage />} />
