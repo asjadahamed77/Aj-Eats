@@ -6,34 +6,44 @@ const jwt = require('jsonwebtoken');
 const register = async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
 
+    // Check if passwords match
     if (password !== confirmPassword) {
         return res.status(400).json({ error: "Passwords do not match" });
     }
 
     try {
+        // Check if the user already exists by email
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ error: "Email already in use" });
         }
 
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Create a new user
         const newUser = new User({
             username,
             email,
             password: hashedPassword,
         });
 
+        // Save the new user to the database
         await newUser.save();
 
+        // Generate a JWT token
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
             expiresIn: "10h",
         });
 
+        // Set the token as an HTTP-only cookie
         res.cookie("token", token, { httpOnly: true });
-        res.status(201).json({ message: "User registered successfully", token });
+
+        // Send a success response
+        res.status(201).json({ message: "User registered successfully", token, user: newUser });
     } catch (error) {
-        res.status(500).json({ error: "Something went wrong" });
+        console.error("Registration error:", error);
+        res.status(500).json({ error: "Server error. Please try again later." });
     }
 };
 
@@ -50,19 +60,25 @@ const login = async (req, res) => {
             return res.status(400).json({ error: "Invalid username/email or password" });
         }
 
+        // Check if the provided password matches the stored password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ error: "Invalid username/email or password" });
         }
 
+        // Generate a JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
             expiresIn: "10h",
         });
 
+        // Set the token as an HTTP-only cookie
         res.cookie("token", token, { httpOnly: true });
-        res.status(200).json({ message: "User logged in successfully", token });
+
+        // Send a success response
+        res.status(200).json({ message: "User logged in successfully", token, user });
     } catch (error) {
-        res.status(500).json({ error: "Something went wrong" });
+        console.error("Login error:", error);
+        res.status(500).json({ error: "Server error. Please try again later." });
     }
 };
 
@@ -71,25 +87,32 @@ const googleAuth = async (req, res) => {
     const { email, username } = req.body;
 
     try {
+        // Find the user by email, or create a new one if it doesn't exist
         let user = await User.findOne({ email });
         if (!user) {
             user = new User({ email, username, password: "" });
             await user.save();
         }
 
+        // Generate a JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: "1h",
+            expiresIn: "10h",
         });
 
+        // Set the token as an HTTP-only cookie
         res.cookie("token", token, { httpOnly: true });
-        res.status(200).json({ message: "Google authentication successful", token });
+
+        // Send a success response
+        res.status(200).json({ message: "Google authentication successful", token, user });
     } catch (error) {
-        res.status(500).json({ error: "Something went wrong" });
+        console.error("Google authentication error:", error);
+        res.status(500).json({ error: "Server error. Please try again later." });
     }
 };
 
 // User Logout
 const logout = (req, res) => {
+    // Clear the token cookie
     res.clearCookie("token");
     res.status(200).json({ message: "User logged out successfully" });
 };

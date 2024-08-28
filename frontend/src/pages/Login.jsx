@@ -4,15 +4,18 @@ import GoogleAuth from "../components/GoogleAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import backendDomain from "../helpers/backendDomain";
-import { ClipLoader } from "react-spinners"; // Import the spinner
+import { ClipLoader } from "react-spinners";
+import { useDispatch } from 'react-redux';
+import { signInStart, signInSuccess, signInFailure } from '../store/userSlice.js';
 
 const Login = () => {
+  const dispatch = useDispatch();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
-    identifier: "", // This can be username or email
+    identifier: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false); // State for loading spinner
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -31,7 +34,8 @@ const Login = () => {
     e.preventDefault();
     const { identifier, password } = formData;
 
-    setLoading(true); // Start loading spinner
+    dispatch(signInStart());
+    setLoading(true);
 
     try {
       const response = await fetch(`${backendDomain}/user/login`, {
@@ -44,16 +48,24 @@ const Login = () => {
       });
 
       const data = await response.json();
-      setLoading(false); // Stop loading spinner
+      setLoading(false);
 
       if (response.ok) {
+        dispatch(signInSuccess(data.user)); // Dispatch signInSuccess with user data
+        // Save token if returned
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
+        console.log("Token",data.token)
         toast.success("Logged in successfully!");
-        navigate("/"); 
+        navigate("/");
       } else {
+        dispatch(signInFailure(data.error)); // Dispatch signInFailure with error message
         toast.error(data.error || "Invalid credentials!");
       }
     } catch (error) {
-      setLoading(false); // Stop loading spinner
+      setLoading(false);
+      dispatch(signInFailure("An error occurred. Please try again.")); // Dispatch error for network issues
       toast.error("An error occurred. Please try again.");
     }
   };
@@ -62,7 +74,7 @@ const Login = () => {
     <div className="relative flex justify-center items-center h-[100vh] bg-[#F7f7f7] box-border">
       {loading && (
         <div className="absolute inset-0 flex justify-center items-center bg-gray-700 bg-opacity-50 z-50">
-          <ClipLoader color={"#ffffff"} size={50} />
+          <ClipLoader color={"#ffff"} size={50} />
         </div>
       )}
       <div className="bg-white box-border max-w-[350px] w-[350px] rounded-md px-4">
@@ -98,7 +110,7 @@ const Login = () => {
           <div>
             <button
               className="w-full p-2.5 rounded-lg mt-[5px] bg-main text-white font-[600] hover:opacity-80"
-              disabled={loading} // Disable button while loading
+              disabled={loading}
             >
               {loading ? (
                 <div className="flex justify-center items-center">
