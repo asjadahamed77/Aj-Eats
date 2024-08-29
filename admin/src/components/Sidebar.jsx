@@ -52,6 +52,15 @@ const Sidebar = () => {
             Advertisements
           </li>
         </Link>
+        <Link to="/view-advertisement">
+          <li
+            className={`pl-4 p-3 rounded-md border text-slate-900 font-medium overflow-hidden whitespace-nowrap text-ellipsis max-w-full
+              ${activeLink === '/view-advertisement' ? 'bg-slate-200 border-black border-[2px] shadow-lg' : 'hover:bg-slate-200'}`}
+            onClick={() => setActiveLink('/view-advertisement')}
+          >
+            View Advertisements
+          </li>
+        </Link>
       </ul>
     </div>
   );
