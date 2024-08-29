@@ -6,23 +6,22 @@ const cors = require('cors');
 const path = require('path');
 const userRouter = require('./routes/userRoutes.js');
 
-// Load environment variables from .env file
 dotenv.config();
+// In your main server file, right after loading dotenv
+console.log("Loaded JWT_SECRET:", process.env.JWT_SECRET);
 
 
 const app = express();
 
-// CORS setup to allow credentials and specify the frontend origin
 app.use(cors({
-  origin: ['http://localhost:3001'], // Specify the frontend URLs
-  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  origin: ['http://localhost:3001'], 
+  credentials: true, 
 }));
 
 // Middleware to parse cookies and JSON bodies
 app.use(cookieParser());
 app.use(express.json());
 
-// Connect to MongoDB using the URI from environment variables
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
@@ -31,12 +30,9 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('Failed to connect to MongoDB', error);
   });
 
-  
-// Your routes and other application logic will go here
 
 app.use('/user', userRouter);
 
-// Start the server on the specified port or default to port 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

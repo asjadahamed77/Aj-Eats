@@ -4,7 +4,7 @@ import GoogleAuth from "../components/GoogleAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import backendDomain from "../helpers/backendDomain";
-import ClipLoader from "react-spinners/ClipLoader"; // Import the spinner
+import ClipLoader from "react-spinners/ClipLoader"; 
 
 const SignUp = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -15,7 +15,7 @@ const SignUp = () => {
     password: "",
     confirmPassword: "",
   });
-  const [loading, setLoading] = useState(false); // State for loading spinner
+  const [loading, setLoading] = useState(false); 
 
   const navigate = useNavigate();
 

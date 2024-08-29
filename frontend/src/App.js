@@ -7,25 +7,12 @@ import CartPage from "./pages/CartPage";
 import Navbar from "./components/Navbar";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { signInSuccess } from "./store/userSlice";
 
 function App() {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Fetch user info from backend if needed, or directly dispatch user info
-      dispatch(signInSuccess({ token }));
-      // Alternatively, you could decode the token to get user info
-    }
-  }, [dispatch]);
   return (
     <div>
      <BrowserRouter>
-     <ToastContainer />
+     <ToastContainer position="top-center" />
      <Navbar />
      <Routes>
       <Route path="/" element={<Homepage />} />

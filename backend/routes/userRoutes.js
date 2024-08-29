@@ -1,21 +1,18 @@
 const express = require('express');
 const userRouter = express.Router();
-const { register, login, googleAuth, logout } = require('../controllers/userController.js');
-const getUserDetails = require('../controllers/getUserController.js');
+const { register, login, googleAuth, logout } = require('../controllers/authController.js');
 const authenticateToken = require('../utils/authenticateToken.js');
+const { updateUser, getUserById, getAllUsers } = require('../controllers/userController.js');
 
-// Register a new user
+
 userRouter.post('/register', register);
-
-// Log in a user
 userRouter.post('/login', login);
-
-// Google authentication
 userRouter.post('/google-auth', googleAuth);
-
-// Log out a user
 userRouter.post('/logout', logout);
 
-userRouter.get('/details', authenticateToken, getUserDetails);
+userRouter.post('/update/:id', authenticateToken, updateUser);
+userRouter.get('/update-user/:id', authenticateToken, getUserById);
+userRouter.get('/get-users',getAllUsers)
+
 
 module.exports = userRouter;

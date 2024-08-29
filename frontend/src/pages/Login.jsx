@@ -51,7 +51,7 @@ const Login = () => {
       setLoading(false);
 
       if (response.ok) {
-        dispatch(signInSuccess(data.user)); // Dispatch signInSuccess with user data
+        dispatch(signInSuccess({ ...data.user, token: data.token })); // Dispatch signInSuccess with user data
         // Save token if returned
         if (data.token) {
           localStorage.setItem('token', data.token);
