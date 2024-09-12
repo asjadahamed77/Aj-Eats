@@ -6,6 +6,7 @@ const cors = require('cors');
 const path = require('path');
 const userRouter = require('./routes/userRoutes.js');
 const advertisementRouter = require('./routes/advertisementRoutes.js');
+const foodRouter = require('./routes/foodRoutes.js');
 
 dotenv.config();
 // In your main server file, right after loading dotenv
@@ -15,7 +16,7 @@ console.log("Loaded JWT_SECRET:", process.env.JWT_SECRET);
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:3001', "http://localhost:3004" ], 
+  origin: ['http://localhost:3002', "http://localhost:3001" ], 
   credentials: true, 
 }));
 
@@ -24,6 +25,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -37,6 +39,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 app.use('/user', userRouter);
 app.use('/advertisement', advertisementRouter);
+app.use('/food', foodRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

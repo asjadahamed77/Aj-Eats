@@ -1,23 +1,65 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import sampleImage from "../assets/sample.png";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import backendDomainS from "../helpers/backendDomain";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RingLoader } from "react-spinners";
 
-const AddFoods = () => {
-  const [selectedImage, setSelectedImage] = useState(sampleImage);
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate(); // Initialize the useNavigate hook
+const EditFoods = () => {
+  const { id } = useParams();
+  const [food, setFood] = useState(null);
+  const [loading, setLoading] = useState(true); // Set initial loading state to true
+  const navigate = useNavigate();
 
-  const handleImageClick = () => {
-    document.getElementById("imageInput").click();
+  useEffect(() => {
+    const fetchFood = async () => {
+      try {
+        const response = await fetch(`${backendDomainS}/food/${id}`, {
+          credentials: "include",
+        });
+        const data = await response.json();
+        setFood(data);
+      } catch (error) {
+        toast.error("Failed to fetch food item.");
+      } finally {
+        setLoading(false); // Set loading to false once data is fetched
+      }
+    };
+
+    fetchFood();
+  }, [id]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("name", food.name);
+      formData.append("category", food.category);
+      formData.append("price", food.price);
+      formData.append("description", food.description);
+      if (document.getElementById("imageInput").files[0]) {
+        formData.append("image", document.getElementById("imageInput").files[0]);
+      }
+
+      const response = await fetch(`${backendDomainS}/food/${id}`, {
+        method: "PUT",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        toast.success("Food item updated successfully!");
+        navigate("/view-foods");
+      } else {
+        throw new Error("Failed to update food item.");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageChange = (e) => {
@@ -25,67 +67,22 @@ const AddFoods = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setSelectedImage(reader.result);
+        setFood({ ...food, image: reader.result });
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    // Validate form inputs
-    if (!name || !category || !price || !description) {
-      setError("All fields are required.");
-      toast.error("All fields are required.");
-      return;
-    }
-  
-    setLoading(true);
-    setError("");
-  
-    try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("category", category);
-      formData.append("price", price);
-      formData.append("description", description);
-      const imageFile = document.getElementById("imageInput").files[0];
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
-  
-      const response = await fetch(`${backendDomainS}/food/add`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-  
-      const result = await response.json();
-      console.log("Server response:", result);
-  
-      if (response.ok) {
-        toast.success("Food item added successfully!");
-        setName("");
-        setCategory("");
-        setPrice("");
-        setDescription("");
-        setSelectedImage(sampleImage);
-        navigate("/view-foods");
-      } else {
-        throw new Error(result.message || "Failed to add food item.");
-      }
-    } catch (err) {
-      setError(err.message);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-600 bg-opacity-75">
+        <RingLoader color="#ffffff" size={100} />
+      </div>
+    );
+  }
 
-  return (
-    <div className="bg-[#f7f7f7] flex flex-col w-full p-[40px] gap-5 relative">
-      
+  return food ? (
+    <div className="bg-[#f7f7f7] flex flex-col w-full p-[40px] gap-5">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col">
           <label className="text-[22px] text-slate-800 font-[600]">
@@ -94,9 +91,10 @@ const AddFoods = () => {
           <input
             className="w-[500px] bg-transparent outline-none border-[2px] border-slate-800 rounded-lg p-2"
             type="text"
-            placeholder="Food Name..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={food.name}
+            onChange={(e) =>
+              setFood({ ...food, name: e.target.value })
+            }
           />
         </div>
         <div className="flex gap-5 items-center font-[600]">
@@ -105,8 +103,10 @@ const AddFoods = () => {
           </label>
           <select
             className="rounded-[20px] p-2 border-[2px] border-slate-800"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={food.category}
+            onChange={(e) =>
+              setFood({ ...food, category: e.target.value })
+            }
           >
             <option value="" disabled className="p-1 bg-slate-200 font-[500]">
               Select Category
@@ -137,9 +137,9 @@ const AddFoods = () => {
           </label>
           <img
             className="w-[100px] h-[100px] cursor-pointer rounded-md"
-            src={selectedImage}
+            src={food.image ? food.image : `${backendDomainS}/uploads/${food.imageUrl}`}
             alt="Selected Food"
-            onClick={handleImageClick}
+            onClick={() => document.getElementById("imageInput").click()}
           />
           <input
             id="imageInput"
@@ -154,9 +154,10 @@ const AddFoods = () => {
           <input
             className="w-[500px] bg-transparent outline-none border-[2px] border-slate-800 rounded-lg p-2"
             type="text"
-            placeholder="Item Price..."
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={food.price}
+            onChange={(e) =>
+              setFood({ ...food, price: e.target.value })
+            }
           />
         </div>
         <div className="flex flex-col">
@@ -165,12 +166,12 @@ const AddFoods = () => {
           </label>
           <textarea
             className="w-[500px] h-[100px] resize-none bg-transparent outline-none border-[2px] border-slate-800 rounded-lg p-2"
-            placeholder="Food Description..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={food.description}
+            onChange={(e) =>
+              setFood({ ...food, description: e.target.value })
+            }
           ></textarea>
         </div>
-        {error && <p className="text-red-500">{error}</p>}
         <div>
           <button
             type="submit"
@@ -180,18 +181,16 @@ const AddFoods = () => {
             {loading ? (
               <RingLoader color="#ffffff" size={24} />
             ) : (
-              "Add Food"
+              "Update Food"
             )}
           </button>
         </div>
       </form>
-      {loading && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-          <RingLoader color="#ffffff" size={100} />
-        </div>
-      )}
+      <ToastContainer />
     </div>
+  ) : (
+    <p>Loading...</p>
   );
 };
 
-export default AddFoods;
+export default EditFoods;

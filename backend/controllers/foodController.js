@@ -1,11 +1,11 @@
-const Food = require('../models/foodModel');
+const Food = require('../models/foodModel.js');
 
 // Add a new food item
 const addFood = async (req, res) => {
   try {
     const { name, category, price, description } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-
+    const imageUrl = req.file ? `${req.file.filename}` : null;
+    console.log('Uploaded file:', req.file);
     const newFood = new Food({
       name,
       category,
@@ -48,7 +48,7 @@ const getFoodById = async (req, res) => {
 const updateFood = async (req, res) => {
   try {
     const { name, category, price, description } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl;
+    const imageUrl = req.file ? `${req.file.filename}` : req.body.imageUrl;
 
     const updatedFood = await Food.findByIdAndUpdate(
       req.params.id,
@@ -68,6 +68,7 @@ const updateFood = async (req, res) => {
 
     res.status(200).json(updatedFood);
   } catch (error) {
+    console.error('Error adding food item:', error.message);
     res.status(500).json({ error: 'Failed to update food item' });
   }
 };

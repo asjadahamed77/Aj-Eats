@@ -10,6 +10,7 @@ import Homepage from "./pages/Homepage";
 import ViewAdvertisements from "./pages/ViewAdvertisements";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import EditFoods from "./pages/EditFoods";
 function App() {
   return (
     <div>
@@ -22,6 +23,7 @@ function App() {
             <Route path="/" element={<Homepage />} />
             <Route path="add-foods" element={<AddFoods />} />
             <Route path="view-foods" element={<ViewFoods />} />
+            <Route path="edit-foods/:id" element={<EditFoods />} />
             <Route path="view-users" element={<ViewUsers />} />
             <Route path="view-orders" element={<ViewOrders />} />
             <Route path="advertisement" element={<Advertisement />} />

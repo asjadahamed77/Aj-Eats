@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const foodRouter = express.Router();
 const multer = require('multer');
 const {
   addFood,
@@ -7,7 +7,7 @@ const {
   getFoodById,
   updateFood,
   deleteFood,
-} = require('../controllers/foodController');
+} = require('../controllers/foodController.js');
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -21,19 +21,21 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
+
 // Add a new food item
-router.post('/add', upload.single('image'), addFood);
+foodRouter.post('/add', upload.single('image'), addFood);
 
 // Get all food items
-router.get('/', getFoods);
+foodRouter.get('/', getFoods);
 
 // Get a food item by ID
-router.get('/:id', getFoodById);
+foodRouter.get('/:id', getFoodById);
 
 // Update a food item
-router.put('/:id', upload.single('image'), updateFood);
+foodRouter.put('/:id', upload.single('image'), updateFood);
 
 // Delete a food item
-router.delete('/:id', deleteFood);
+foodRouter.delete('/:id', deleteFood);
 
-module.exports = router;
+module.exports = foodRouter;
