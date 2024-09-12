@@ -77,7 +77,7 @@ const ViewFoods = () => {
               />
               <h2 className="text-xl font-bold mb-2">{food.name}</h2>
               <p className="text-gray-700">{food.category}</p>
-              <p className="text-gray-700">${food.price}</p>
+              <p className="text-gray-700">Rs.{food.price}</p>
               <p className="text-gray-700">{food.description}</p>
               <div className="flex justify-between mt-4">
                 <button
